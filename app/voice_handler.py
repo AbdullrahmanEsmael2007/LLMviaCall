@@ -20,7 +20,7 @@ class VoiceEventHandler:
                 "OpenAI-Beta": "realtime=v1"
             }
 
-            async with websockets.connect(url, extra_headers=headers) as openai_ws:
+            async with websockets.connect(url, additional_headers=headers) as openai_ws:
                 self.openai_ws = openai_ws
                 await self.initialize_session()
                 
