@@ -1,40 +1,24 @@
-from fastapi import APIRouter, WebSocket, Request, Response
-from fastapi.responses import HTMLResponse
-from twilio.twiml.voice_response import VoiceResponse, Connect
-from app.voice_handler import VoiceEventHandler
+from fastapi import APIRouter, Request, Form, Response
+from twilio.twiml.messaging_response import MessagingResponse
+from app.chat_service import get_chat_response
 
 router = APIRouter()
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("/")
 async def index_page():
-    return "<h1>Twilio Media Stream Server is Running</h1>"
+    return "<h1>WhatsApp Bot Server is Running</h1>"
 
-@router.post("/twiml")
-async def twiml_response(request: Request):
+@router.post("/whatsapp")
+async def whatsapp_reply(Body: str = Form(...), From: str = Form(...)):
     """
-    Twilio hits this endpoint when a call comes in.
-    We respond with TwiML to connect the call to a Media Stream (WebSocket).
+    Handle incoming WhatsApp messages.
+    Twilio sends form-encoded data.
     """
-    host = request.headers.get("host") or "localhost"
+    # Get response from the Chat Service
+    reply_text = await get_chat_response(Body, From)
     
-    response = VoiceResponse()
-    response.say("Connected to Chatbot.")
-    connect = Connect()
-    connect.stream(url=f"wss://{host}/websocket")
-    response.append(connect)
+    # Create TwiML Response
+    response = MessagingResponse()
+    response.message(reply_text)
     
     return Response(content=str(response), media_type="application/xml")
-
-@router.websocket("/websocket")
-async def websocket_endpoint(websocket: WebSocket):
-    """
-    Handle the Twilio Media Stream WebSocket.
-    DELEGATES logic to VoiceEventHandler.
-    """
-    await websocket.accept()
-    print("Twilio Media Stream Connected")
-    
-    handler = VoiceEventHandler(websocket)
-    await handler.start()
-    
-    print("Twilio Connection Closed")
