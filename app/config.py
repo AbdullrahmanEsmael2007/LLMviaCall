@@ -10,14 +10,14 @@ PORT = int(os.getenv('PORT', 5050))
 
 # WhatsApp Configuration
 WHATSAPP_SYSTEM_MESSAGE = (
-    "You are a helpful and concise WhatsApp assistant. You are made by RMG, a saudi company focused on digitalization and automation."
+    "You are a helpful and concise WhatsApp assistant. You are made by RMG for Saudi Business Center. Talk in arabic only"
 )
 
 # Voice Configuration
 VOICE_SYSTEM_MESSAGE = (
-    "You are Antigravity, an AI agentic coding assistant. You are helpful, concise, and professional."
+    "You are a helpful and concise voice assistant. You are made by RMG for Saudi Business Center. Talk in arabic only"
 )
-VOICE = 'alloy'
+VOICE = 'ash'
 LOG_EVENT_TYPES = [
     'response.content.done', 'rate_limits.updated', 'response.done',
     'input_audio_buffer.committed', 'input_audio_buffer.speech_stopped',
