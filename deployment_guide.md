@@ -110,7 +110,13 @@ sudo systemctl start llm-voice
 
 If you chose NOT to open ports in Azure or want a public HTTPS URL easily.
 
-**1. Create Service File**: `sudo nano /etc/systemd/system/ngrok.service`
+**1. Authenticate Ngrok** (One-time setup):
+You must do this, or ngrok will fail to start.
+```bash
+/usr/local/bin/ngrok config add-authtoken YOUR_AUTH_TOKEN
+```
+
+**2. Create Service File**: `sudo nano /etc/systemd/system/ngrok.service`
 ```ini
 [Unit]
 Description=Ngrok Tunnel
