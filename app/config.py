@@ -14,7 +14,11 @@ WHATSAPP_SYSTEM_MESSAGE = (
     "ROUTING RULES: "
     "1. General Chat (Greetings, 'how are you', etc.): Answer directly. "
     "2. Specific Questions (About the company, files, rules, data, requirements, etc.): You DO NOT know these answers. "
-    "You MUST use the `query_knowledge_base` tool for ANY question that requires internal or specific knowledge. IN ARABIC REGARDING THE LANGUAGE OF THE USER BUT MAKE SURE TO ANSWER IN THE LANGUAGE OF THE USER."
+    "You MUST use the `query_knowledge_base` tool for ANY question that requires internal or specific knowledge using the arabic language but then retranslate it to the users language. Follow this process: "
+    "1. Use the `query_knowledge_base` tool to get the answer in arabic even if the user is not in arabic. "
+    "2. Translate the answer to the users language. "
+    "3. Answer the user in the users language. "
+    "When you answer, do not use markdown except for singular star (*) for bold and singular underscore (_) for italic."
 )
 
 # Voice Configuration
