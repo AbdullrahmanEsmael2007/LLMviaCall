@@ -87,16 +87,23 @@ class RagClient:
                     try:
                         data = json.loads(line)
                         
-                        # PRIORITY 1: Explicit 'answer' field (usually final or complete)
+                        # Debug log for each line type (optional, keep it concise)
+                        # print(f"Processing line type: {data.get('type')}") 
+
+                        # Check logic for various formats:
+
+                        # 1. Top-level 'answer' key (Standard JSON or final event)
                         if "answer" in data and isinstance(data["answer"], str):
                             final_answer = data["answer"]
                         
-                        # PRIORITY 2: 'data' field used for streaming chunks
-                        elif "data" in data: 
-                            content = data["data"]
-                            # Only treat as chunk if it's a string (ignore dicts like 'start' event)
-                            if isinstance(content, str):
-                                accumulated_chunks.append(content)
+                        # 2. Nested 'answer' inside 'data' dict (e.g. {"type": "end", "data": {"answer": "..."}})
+                        elif "data" in data and isinstance(data["data"], dict):
+                            if "answer" in data["data"] and isinstance(data["data"]["answer"], str):
+                                final_answer = data["data"]["answer"]
+                        
+                        # 3. Streaming string content in 'data' (e.g. {"type": "chunk", "data": "Hello"})
+                        elif "data" in data and isinstance(data["data"], str):
+                             accumulated_chunks.append(data["data"])
                             
                     except json.JSONDecodeError:
                         continue
