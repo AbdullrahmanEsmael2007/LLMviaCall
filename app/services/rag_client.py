@@ -70,24 +70,38 @@ class RagClient:
                     print(f"Validation Error: {response.text}")
                     return "I found some info but the system rejected the format."
 
-                response.raise_for_status()
-                # Endpoint returns specific structure, seemingly just "Successful Response" (200)
-                # But we need the ANSWER. The GET endpoint returns messages. 
-                # Wait, the POST /chat-messages returns 200 "Successful Response" but content is implicit?
-                # Usually RAG APIs return the answer in the POST response.
-                # Let's check the schema output for POST /chat-messages 
-                # Response is "200 Successful Response", schema undefined/empty?
-                # ACTUALLY: The user's code snippet implies they want an answer.
-                # Let's check the logs or assume standard behavior.
-                # Inspecting the OpenAPI again: POST /chat-messages returns "200"
-                # But let's look at the actual response content.
+                # The API appears to return newline-delimited JSON (NDJSON) or a stream.
+                # 'Extra data' error means multiple JSON objects are in the response.
+                # We will handle this by splitting lines and looking for the answer.
+                response_text = response.text
+                print(f"RAG Raw Response: {response_text[:200]}...") # Log start of response for debug
                 
-                result = response.json()
+                final_answer = ""
                 
-                # If the API is stream-only or async, we might not get the answer here.
-                # But typically it returns { "answer": ... } or { "data": ... }
-                # Let's try to extract 'answer' or 'message' from response.
-                return result.get("answer") or result.get("data") or str(result)
+                # Try to parse each line as a separate JSON object
+                for line in response_text.strip().split('\n'):
+                    if not line.strip():
+                        continue
+                    try:
+                        data = json.loads(line)
+                        # Accumulate answer if it's streamed, or pick the final one
+                        # Common patterns: 'answer', 'message', 'delta'
+                        if "answer" in data:
+                            final_answer = data["answer"]
+                        elif "data" in data: 
+                            final_answer = data["data"]
+                            
+                    except json.JSONDecodeError:
+                        continue
+                
+                if final_answer:
+                    return final_answer
+                
+                # Fallback: if single JSON parsing failed above (unlikely if loop worked), try whole body
+                try:
+                    return response.json().get("answer")
+                except:
+                    return f"Received info but couldn't parse: {response_text[:100]}"
                 
             except Exception as e:
                 print(f"RAG Query Error: {e}")
