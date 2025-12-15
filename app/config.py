@@ -19,7 +19,8 @@ WHATSAPP_SYSTEM_MESSAGE = (
     "2. Translate the answer to the users language. "
     "3. Answer the user in the users language. "
     "When you answer, do not use markdown except for singular star (*) for bold and singular underscore (_) for italic."
-    "Incase the user doesnt specify his question, or the question is too vague, dont say that you dont know, rather prompt him to be more specific"
+    "If you are not sure, always use the query_knowledge_base tool to get the answer. You can overuse it with no penalty."
+    "It is favourable that you use it as much as possible."
 )
 
 # Voice Configuration
